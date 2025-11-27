@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>DARKCHAT</title>
+  <!-- External stylesheet -->
+  <link rel="stylesheet" href="text.css">
+</head>
+<body>
+  <h1 id="welcome"></h1>
+
+  <script>
+    // Get query parameters from URL
+    const params = new URLSearchParams(window.location.search);
+    const username = params.get("username");
+
+    // Show username
+    if (username) {
+      document.getElementById("welcome").textContent = "Welcome, " + username + "!";
+    }
+  </script>
+
+  <div class="chat-container">
+    <!-- Delete button top-right -->
+    <button class="delete-btn" onclick="clearMessages()">Delete</button>
+
+    <!-- Messages area -->
+    <div id="savedMessages" class="messages"></div>
+
+    <!-- Input area -->
+    <form class="input-area" onsubmit="saveMessage(event)">
+      <textarea id="messageBox" rows="2" placeholder="Type a message..."></textarea>
+      <input type="submit" value="Send" class="send-btn">
+    </form>
+  </div>
+
+  <script>
+    const savedDiv = document.getElementById("savedMessages");
+
+    // Hacker-style bot names
+    const hackerNames = [
+      "ZeroDay", "NullPointer", "CryptoGhost", "StackTrace",
+      "KernelPanic", "PhantomByte", "DarkProxy", "HexShadow",
+      "BugHunter", "CipherFox", "Overclock", "RootKitten",
+      "SegFault", "QuantumLoop", "ByteBandit", "CodePhantom"
+    ];
+
+    // Slang/casual bot names
+    const slangBots = ["antman", "Brivb", "Coded", "enviro", "Ella", "Fobilio"];
+
+    // Word bank for hacker responses
+    const hackerWordBank = [
+      "Interesting point", "I agree", "That’s cool", "Sounds fun",
+      "Tell me more", "Wow", "Really?", "No cap", "For real", "Big mood",
+      "Good vibes", "Same here", "Lowkey true", "Highkey wild", "Straight up"
+    ];
+
+    // Word bank for slang bots
+    const slangWordBank = [
+      "hey", "yo", "bro", "sis", "fam", "chillin", "coding", "project",
+      "music", "vibes", "relax", "awesome", "cool", "lit", "fire",
+      "book", "trip", "recipe", "focus", "loop", "array", "fun", "chat",
+      "brb", "no cap", "on fleek", "lol", "idk", "btw", "grind", "hustle",
+      "what’s up", "how’s it going", "catch you later", "see ya", "for real",
+      "that’s wild", "sounds good", "all good", "big mood", "same here",
+      "good vibes only", "lowkey", "highkey", "straight up", "no worries"
+    ];
+
+    // Keep track of active hacker bots
+    let activeHackerBots = [];
+
+    // Generate hacker bot response
+    function generateHackerResponse(userMessage) {
+      const randomPhrase = hackerWordBank[Math.floor(Math.random() * hackerWordBank.length)];
+      if (Math.random() > 0.7) {
+        return randomPhrase + " about \"" + userMessage + "\"?";
+      } else {
+        return randomPhrase + " about \"" + userMessage + "\".";
+      }
+    }
+
+    // Generate slang bot sentence
+    function generateSlangSentence() {
+      const wordsCount = Math.floor(Math.random() * 6) + 3; // 3–8 words
+      const sentence = [];
+      for (let i = 0; i < wordsCount; i++) {
+        const word = slangWordBank[Math.floor(Math.random() * slangWordBank.length)];
+        sentence.push(word);
+      }
+      let finalSentence = sentence.join(" ");
+      finalSentence = finalSentence.charAt(0).toUpperCase() + finalSentence.slice(1);
+      if (Math.random() > 0.7) {
+        finalSentence += "?";
+      } else {
+        finalSentence += Math.random() > 0.5 ? "." : "!";
+      }
+      return finalSentence;
+    }
+
+    // User sends message
+    function saveMessage(event) {
+      event.preventDefault();
+      const textarea = document.getElementById("messageBox");
+      const message = textarea.value.trim();
+
+      if (message) {
+        // Show user message
+        const newMsg = document.createElement("p");
+        newMsg.textContent = "You: " + message;
+        newMsg.className = "user"; // apply user color
+        savedDiv.insertBefore(newMsg, savedDiv.firstChild);
+        localStorage.setItem("messages", savedDiv.innerHTML);
+        textarea.value = "";
+
+        // Create a new hacker bot identity
+        const botName = hackerNames[Math.floor(Math.random() * hackerNames.length)];
+        activeHackerBots.push(botName);
+
+        // Hacker bot replies
+        setTimeout(() => {
+          const reply = document.createElement("p");
+          reply.textContent = botName + ": " + generateHackerResponse(message);
+          reply.className = botName; // apply bot-specific color
+          savedDiv.insertBefore(reply, savedDiv.firstChild);
+          localStorage.setItem("messages", savedDiv.innerHTML);
+        }, 1000);
+      }
+    }
+
+    // Slang bots auto-conversation
+    function startSlangConversation() {
+      slangBots.forEach((bot, i) => {
+        setTimeout(() => {
+          const msg = document.createElement("p");
+          msg.textContent = bot + ": " + generateSlangSentence();
+          msg.className = bot; // apply slang bot-specific color
+          savedDiv.insertBefore(msg, savedDiv.firstChild);
+          localStorage.setItem("messages", savedDiv.innerHTML);
+        }, i * 1500);
+      });
+      setTimeout(startSlangConversation, 10000); // repeat every 10s
+    }
+
+    // Hacker bots keep chatting randomly after joining
+    function startHackerConversation() {
+      activeHackerBots.forEach((bot, i) => {
+        setTimeout(() => {
+          const msg = document.createElement("p");
+          msg.textContent = bot + ": " + generateHackerResponse("the chat");
+          msg.className = bot; // apply hacker bot-specific color
+          savedDiv.insertBefore(msg, savedDiv.firstChild);
+          localStorage.setItem("messages", savedDiv.innerHTML);
+        }, i * 1500);
+      });
+      setTimeout(startHackerConversation, 12000); // repeat every 12s
+    }
+
+    // Load saved messages + start both bot groups
+    window.onload = function () {
+      const saved = localStorage.getItem("messages");
+      if (saved) {
+        savedDiv.innerHTML = saved;
+      }
+      startSlangConversation();
+      startHackerConversation();
+    };
+
+    // Delete all messages
+    function clearMessages() {
+      localStorage.removeItem("messages");
+      savedDiv.innerHTML = "";
+      activeHackerBots = [];
+    }
+  </script>
+</body>
+</html>
